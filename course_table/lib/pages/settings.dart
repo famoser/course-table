@@ -1,6 +1,7 @@
-import 'package:course_table/storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+
+import '../storage.dart';
 
 class SettingsPage extends StatefulWidget {
   SettingsPage(this._courseStorage, {Key key}) : super(key: key);

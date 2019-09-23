@@ -1,5 +1,5 @@
-import 'package:course_table/pages/settings.dart';
-import 'package:course_table/storage.dart';
+import '../pages/settings.dart';
+import '../storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -58,7 +58,7 @@ class _CoursePageState extends State<CoursePage> {
       // sort that earlier weeklies appear before later
       for (var weekDay in newWeeklies.keys) {
         newWeeklies[weekDay].sort((a, b) {
-          return a.start.periodOffset - b.start.periodOffset;
+          return a < b;
         });
       }
 
@@ -103,11 +103,48 @@ class _CoursePageState extends State<CoursePage> {
 
     var result = List<Card>();
     for (var weekly in weeklies) {
-      result.add(Card(
-        child: Column(
-          children: <Widget>[Text(weekly.course.name)],
+      result.add(
+        Card(
+          elevation: 2,
+          child: InkWell(
+            onTap: () {
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(10),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                mainAxisSize: MainAxisSize.max,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text(
+                    weekly.course.name,
+                    style: TextStyle(fontSize: 21),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(1),
+                  ),
+                  Text(
+                    weekly.start.format(context) +
+                        " - " +
+                        weekly.end.format(context) +
+                        " at " +
+                        weekly.place,
+                    textAlign: TextAlign.left,
+                    style: TextStyle(
+                      color: Color.fromARGB(255, 100, 100, 100),
+                      fontSize: 13,
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8),
+                  ),
+                  Text(weekly.description)
+                ],
+              ),
+            ),
+          ),
         ),
-      ));
+      );
     }
 
     return result;

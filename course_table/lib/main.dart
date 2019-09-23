@@ -1,4 +1,4 @@
-import 'package:course_table/pages/course.dart';
+import 'pages/course.dart';
 import 'package:flutter/material.dart';
 
 void main() => runApp(MyApp());

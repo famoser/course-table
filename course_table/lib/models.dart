@@ -121,4 +121,17 @@ class Weekly {
       );
     }
   }
+
+  int operator <(Weekly other) {
+    var startDiff = _timeOfDayDiff(this.start, other.end);
+    if (startDiff != 0) {
+      return startDiff;
+    }
+
+    return _timeOfDayDiff(this.end, other.end);
+  }
+
+  int _timeOfDayDiff(TimeOfDay a, TimeOfDay b) {
+    return (a.hour - b.hour) * 60 + (a.minute - b.minute);
+  }
 }
