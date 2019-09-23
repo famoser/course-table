@@ -1,5 +1,6 @@
 
 import 'package:course_table/pages/settings.dart';
+import 'package:course_table/storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -24,6 +25,8 @@ class CoursePage extends StatefulWidget {
 class _CoursePageState extends State<CoursePage> {
   int today = DateTime.now().weekday;
   int selectedDay = DateTime.now().weekday;
+
+  final courseStorage = CourseStorage();
 
   static const weekdays = {
     DateTime.monday: "Monday",
@@ -84,8 +87,9 @@ class _CoursePageState extends State<CoursePage> {
                 ListTile(
                   title: Text("Settings"),
                   onTap: () {
+                    Navigator.pop(context);
                     Navigator.push(context,
-                        new MaterialPageRoute(builder: (ctxt) => new SettingsPage()));
+                        new MaterialPageRoute(builder: (context) => new SettingsPage(courseStorage)));
                   },
                 )
               ],

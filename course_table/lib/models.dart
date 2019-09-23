@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:yaml/yaml.dart';
 
 class Course {
   Course({
@@ -21,7 +22,7 @@ class Course {
 
   final List<Weekly> weeklies;
 
-  static Course parse(course) {
+  static Course parse(YamlMap course) {
     var urls = Map<String, String>();
     for (String key in course.keys) {
       if (key.endsWith("-url")) {
@@ -52,14 +53,14 @@ class Assessment {
     @required this.type,
   });
 
-  static Assessment parse(Map<String, String> array) {
+  static Assessment parse(YamlMap map) {
     return Assessment(
-      credits: array["credits"],
-      type: array["type"],
+      credits: map["credits"],
+      type: map["type"],
     );
   }
 
-  final String credits;
+  final int credits;
   final String type;
 }
 
@@ -82,14 +83,14 @@ class Weekly {
     "Sunday": 7
   };
 
-  static Weekly parse(Map<String, String> array) {
-    var timeArray = array["time"].split(" - ");
+  static Weekly parse(YamlMap map) {
+    var timeArray = map["time"].split(" - ");
     return Weekly(
-      weekday: weekdayMapping[array["day"]],
+      weekday: weekdayMapping[map["day"]],
       start: _parseTimeOfDay(timeArray[0]),
       end: _parseTimeOfDay(timeArray[1]),
-      place: array["place"],
-      description: array["description"],
+      place: map["place"],
+      description: map["description"],
     );
   }
 

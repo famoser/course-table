@@ -17,14 +17,14 @@ class CourseStorage {
     return File('$path/courses.yml');
   }
 
-  Future<String> get _localFileContent async {
+  Future<String> get readFileContent async {
     final file = await _localFile;
     return await file.readAsString();
   }
 
   Future<List<Course>> readCourses() async {
     try {
-      var contents = await _localFileContent;
+      var contents = await readFileContent;
       return parseCourses(contents);
     } catch (e) {
       return List<Course>();
