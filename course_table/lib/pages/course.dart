@@ -1,8 +1,9 @@
-
 import 'package:course_table/pages/settings.dart';
 import 'package:course_table/storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+
+import '../models.dart';
 
 class CoursePage extends StatefulWidget {
   CoursePage({Key key, this.title}) : super(key: key);
@@ -23,10 +24,49 @@ class CoursePage extends StatefulWidget {
 }
 
 class _CoursePageState extends State<CoursePage> {
-  int today = DateTime.now().weekday;
-  int selectedDay = DateTime.now().weekday;
+  int _today = DateTime.now().weekday;
+  int _selectedDay = DateTime.now().weekday;
 
-  final courseStorage = CourseStorage();
+  final _courseStorage = CourseStorage();
+
+  Map<int, List<Weekly>> _weeklies = getWeekliesDefault();
+
+  static Map<int, List<Weekly>> getWeekliesDefault() {
+    return {
+      1: List<Weekly>(),
+      2: List<Weekly>(),
+      3: List<Weekly>(),
+      4: List<Weekly>(),
+      5: List<Weekly>(),
+      6: List<Weekly>(),
+      7: List<Weekly>(),
+    };
+  }
+
+  _CoursePageState() {
+    _courseStorage.readCourses().then((courses) {
+      var weeklies = courses.map((course) {
+        return course.weeklies;
+      }).expand((i) => i);
+
+      var newWeeklies = getWeekliesDefault();
+
+      for (var weekly in weeklies) {
+        newWeeklies[weekly.weekday].add(weekly);
+      }
+
+      // sort that earlier weeklies appear before later
+      for (var weekDay in newWeeklies.keys) {
+        newWeeklies[weekDay].sort((a, b) {
+          return a.start.periodOffset - b.start.periodOffset;
+        });
+      }
+
+      setState(() {
+        _weeklies = newWeeklies;
+      });
+    });
+  }
 
   static const weekdays = {
     DateTime.monday: "Monday",
@@ -42,7 +82,7 @@ class _CoursePageState extends State<CoursePage> {
     var result = List<ListTile>();
     for (var weekday in weekdays.keys) {
       var text = weekdays[weekday];
-      if (weekday == today) {
+      if (weekday == _today) {
         text += " (today)";
       }
 
@@ -58,9 +98,24 @@ class _CoursePageState extends State<CoursePage> {
     return result;
   }
 
+  List<Card> _displayWeeklies() {
+    var weeklies = _weeklies[_selectedDay];
+
+    var result = List<Card>();
+    for (var weekly in weeklies) {
+      result.add(Card(
+        child: Column(
+          children: <Widget>[Text(weekly.course.name)],
+        ),
+      ));
+    }
+
+    return result;
+  }
+
   void selectDay(int day) {
     setState(() {
-      selectedDay = day;
+      _selectedDay = day;
     });
   }
 
@@ -74,35 +129,34 @@ class _CoursePageState extends State<CoursePage> {
         child: ListView(
           padding: EdgeInsets.zero,
           children: <Widget>[
-            DrawerHeader(
-              child: Text(
-                'Weekdays',
-                style: TextStyle(color: Colors.white),
-              ),
-              decoration: BoxDecoration(color: Colors.blue),
-            )
-          ] +
+                DrawerHeader(
+                  child: Text(
+                    'Weekdays',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  decoration: BoxDecoration(color: Colors.blue),
+                )
+              ] +
               _createWeekDayListTiles() +
               <Widget>[
                 ListTile(
                   title: Text("Settings"),
                   onTap: () {
                     Navigator.pop(context);
-                    Navigator.push(context,
-                        new MaterialPageRoute(builder: (context) => new SettingsPage(courseStorage)));
+                    Navigator.push(
+                        context,
+                        new MaterialPageRoute(
+                            builder: (context) =>
+                                new SettingsPage(_courseStorage)));
                   },
                 )
               ],
         ),
       ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text('You have selected ' + weekdays[selectedDay])
-          ],
-        ),
-      ),
+          child: ListView(
+        children: _displayWeeklies(),
+      )),
     );
   }
 }

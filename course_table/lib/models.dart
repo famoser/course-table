@@ -8,7 +8,6 @@ class Course {
     @required this.urls,
     @required this.assessment,
     @required this.description,
-    @required this.weeklies,
   });
 
   final String name;
@@ -20,7 +19,11 @@ class Course {
 
   final String description;
 
-  final List<Weekly> weeklies;
+  List<Weekly> weeklies = List<Weekly>();
+
+  void _addWeekly(Weekly weekly) {
+    weeklies.add(weekly);
+  }
 
   static Course parse(YamlMap course) {
     var urls = Map<String, String>();
@@ -31,19 +34,20 @@ class Course {
     }
 
     var assessment = Assessment.parse(course["assessment"]);
-    var weeklies = List<Weekly>();
-    for (var weekly in course["weekly"]) {
-      weeklies.add(Weekly.parse(weekly));
-    }
 
-    return Course(
+    var result = Course(
       name: course["name"],
       lecturer: course["lecturer"],
       description: course["description"],
       urls: urls,
       assessment: assessment,
-      weeklies: weeklies,
     );
+
+    for (var weekly in course["weekly"]) {
+      result._addWeekly(Weekly.parse(weekly, result));
+    }
+
+    return result;
   }
 }
 
@@ -66,12 +70,20 @@ class Assessment {
 
 class Weekly {
   Weekly({
+    @required this.course,
     @required this.weekday,
     @required this.start,
     @required this.end,
     @required this.place,
     @required this.description,
   });
+
+  final int weekday;
+  final TimeOfDay start;
+  final TimeOfDay end;
+  final String place;
+  final String description;
+  final Course course;
 
   static const weekdayMapping = {
     "Monday": 1,
@@ -83,9 +95,10 @@ class Weekly {
     "Sunday": 7
   };
 
-  static Weekly parse(YamlMap map) {
+  static Weekly parse(YamlMap map, Course course) {
     var timeArray = map["time"].split(" - ");
     return Weekly(
+      course: course,
       weekday: weekdayMapping[map["day"]],
       start: _parseTimeOfDay(timeArray[0]),
       end: _parseTimeOfDay(timeArray[1]),
@@ -108,10 +121,4 @@ class Weekly {
       );
     }
   }
-
-  final int weekday;
-  final TimeOfDay start;
-  final TimeOfDay end;
-  final String place;
-  final String description;
 }
