@@ -1,7 +1,9 @@
 import 'dart:io';
 
+import 'package:course_table/models.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:yaml/yaml.dart';
 
 void main() => runApp(MyApp());
 
@@ -35,8 +37,7 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
-
-class CounterStorage {
+class CourseStorage {
   Future<String> get _localPath async {
     final directory = await getApplicationDocumentsDirectory();
 
@@ -48,25 +49,29 @@ class CounterStorage {
     return File('$path/courses.yml');
   }
 
-  Future<int> readCourses() async {
+  Future<List<Course>> readCourses() async {
     try {
       final file = await _localFile;
-
-      // Read the file
       String contents = await file.readAsString();
 
-      return int.parse(contents);
+      var yml = loadYaml(contents);
+
+      var courses = List<Course>();
+      for (var course in yml["courses"]) {
+        courses.add(Course.parse(course));
+      }
+
+      return courses;
     } catch (e) {
       // If encountering an error, return 0
-      return 0;
+      return List<Course>();
     }
   }
 
-  Future<File> writeCounter(int counter) async {
+  Future<File> writeCourses(String courses) async {
     final file = await _localFile;
 
-    // Write the file
-    return file.writeAsString('$counter');
+    return file.writeAsString(courses);
   }
 }
 
