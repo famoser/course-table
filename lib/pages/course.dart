@@ -82,8 +82,9 @@ class _CoursePageState extends State<CoursePage> {
     var result = List<ListTile>();
     for (var weekday in weekdays.keys) {
       var text = weekdays[weekday];
-      if (weekday == _today) {
-        text += " (today)";
+      var courseCount = _weeklies[weekday].length;
+      if (courseCount > 0) {
+        text += " (" + courseCount.toString() + ")";
       }
 
       result.add(ListTile(
@@ -98,17 +99,35 @@ class _CoursePageState extends State<CoursePage> {
     return result;
   }
 
-  List<Card> _displayWeeklies() {
-    var weeklies = _weeklies[_selectedDay];
+  List<Widget> _displayWeeklies() {
+    var header = weekdays[_selectedDay];
+    if (_selectedDay == _today) {
+      header += " (today)";
+    }
 
-    var result = List<Card>();
+    var result = List<Widget>();
+    result.add(new Padding(
+        padding: EdgeInsets.all(16.0),
+        child: new Text(
+          header,
+          style: TextStyle(fontWeight: FontWeight.bold),
+        )));
+
+    var weeklies = _weeklies[_selectedDay];
+    if (weeklies.length == 0) {
+      result.add(new Padding(
+          padding: EdgeInsets.all(16.0),
+          child: new Text(
+            "no courses today"
+          )));
+    }
+
     for (var weekly in weeklies) {
       result.add(
         Card(
           elevation: 2,
           child: InkWell(
-            onTap: () {
-            },
+            onTap: () {},
             child: Padding(
               padding: const EdgeInsets.all(10),
               child: Column(
